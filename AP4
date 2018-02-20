@@ -1,0 +1,45 @@
+clear, clc
+Q=1;
+S=2;
+E=zeros(S,Q+1);
+logE=zeros(S,Q);
+for s=1:S
+    k=10^s;
+    for q=0:Q
+        N=10*2^q;
+        L=1;
+        U0=1;
+        v=1;
+        A=1;
+        h=L/(N+1);
+        a=(-(2+(h*k)^2))*ones(1,N);
+        g=(A*h^2)*ones(1,N);
+        g(1)=A*h^2-U0;
+         for j=2:N
+            a(j)=a(j)-(1/(a(j-1)));
+            g(j)=g(j)-(g(j-1)/(a(j-1)));
+        end
+        u=zeros(1,N);
+        u(N)=g(N)/a(N);
+        for ii=1:(N-1)
+          u(N-ii)=(g(N-ii)-u(N-ii))/a(N-ii);
+        end
+        U=zeros(1,N);
+        for j=1:N
+            U(j)=(1-(sinh(k*(L-j*h))+sinh(k*j*h))/sinh(k*L))*A/(k^2)+U0*sinh(k*(L-j*h))/sinh(k*L);
+        end
+        e=zeros(1,N);
+        e(N)=U(N)-u(N);
+        for j=1:N-1
+            e(N-j)=-e(N+1-j)/a(N-j);
+        end
+        ebar=0;
+        for j=1:N
+            e(j)=abs(e(j));
+        end
+        E(s,q+1)=max(e);
+    end
+    for q=1:Q
+        logE(s,q)=(log(E(s,q)/E(s,q+1))/log(2));
+    end
+end
