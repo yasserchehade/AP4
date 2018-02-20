@@ -1,5 +1,7 @@
+%% part 1
+%
 clear, clc
-Q=1;
+Q=15;
 S=2;
 E=zeros(S,Q+1);
 logE=zeros(S,Q);
@@ -33,8 +35,9 @@ for s=1:S
         for j=1:N
             x(j)=j*h;
         end
-%         plot(x,u,x,U)
-%         legend('u','U')
+        figure
+        plot(x,u,x,U)
+        legend('u','U')
         e=zeros(1,N);
         e(N)=U(N)-u(N);
         for j=1:N-1
@@ -50,3 +53,12 @@ for s=1:S
         logE(s,q)=(log(E(s,q)/E(s,q+1))/log(2));
     end
 end
+
+N=zeros(1,Q);
+for q=1:Q
+    N(q)=10*2^q;
+end
+figure
+semilogx(N,logE(1,:),N,logE(2,:))
+grid on
+legend('k=10','k=100')
