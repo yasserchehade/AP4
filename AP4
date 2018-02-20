@@ -1,59 +1,59 @@
 %% part 1
 %
 clear, clc
-Q=7;
-S=2;
-E=zeros(S,Q+1);
-logE=zeros(S,Q);
-for s=1:S
-    k=10^(s);
-    for q=0:Q
-        N=10*2^q;
-        x=zeros(1,N);
-        L=1;
-        U0=1;
-        A=1;
-        h=L/(N+1);
-        a=(-(2+(h*k)^2))*ones(1,N);
-        b=ones(1,N);
-        c=ones(1,N-1);
-        g=(A*h^2)*ones(1,N);
-        g(1)=A*h^2-U0;
-         for j=2:N
+Q=10; %set limit for nodes
+S=2;  %set limits for k
+E=zeros(S,Q+1); % create a zero matrix to fill in the errors at each N and k 
+logE=zeros(S,Q);% create a zero matrix to in the log change from N to 2N
+for s=1:S  % we start by defining a variable s that runs the code 's' times while changing k from 10 to 100 as assigned 
+    k=10^(s); % use the index s to increase k 10 times
+    for q=0:Q %similarly create an index that changes the value of N and run the code each time
+        N=10*2^q; %define the number of nodes as N that doubles every time
+        x=zeros(1,N); %create a zero matrix for the x values to be defined later
+        L=1; % define the boundary value L as 1
+        U0=1; %define the initial value of u as U0=1
+        A=1; %define the value of f as A
+        h=L/(N+1); % define the interval h
+        a=(-(2+(h*k)^2))*ones(1,N); %create the row vector a of the diagonal values of the matrix  and placing (-(2+(h*k)^2)) in every cell
+        b=ones(1,N); %b is a ones row vector of ones with dimentions N
+        c=ones(1,N-1);% c is a row vecor of ones with dimentions N-1
+        g=(A*h^2)*ones(1,N); %create the f values in a row vector of dimentions N
+        g(1)=A*h^2-U0; %modify the first term of g to A*h^2-U0
+         for j=2:N  %solve the system of equation using the solution to the tridiagonal linear algorithm
             a(j)=a(j)-(b(j)/a(j-1))*c(j-1);
             g(j)=g(j)-(g(j-1)*b(j)/(a(j-1)));
         end
-        u=zeros(1,N);
-        u(N)=g(N)/a(N);
-        for ii=1:(N-1)
+        u=zeros(1,N); % define a zero matrix to be filled in later
+        u(N)=g(N)/a(N); % solve the Nth  term of u
+        for ii=1:(N-1) %create an algorithm that solves the system from the bottom to the top and placing each term in the ii-th cell
           u(N-ii)=(g(N-ii)-u(N+1-ii))/a(N-ii);
         end
-        U=zeros(1,N);
-        for j=1:N
+        U=zeros(1,N); % define a zero matrix to be filled in later
+        for j=1:N %calculate the exact value of the function at every node
             U(j)=((1-((sinh(k*(L-j*h))+sinh(k*j*h))/sinh(k*L)))*A/(k^2))+U0*(sinh(k*(L-j*h))/sinh(k*L));
         end
-        for j=1:N
+        for j=1:N %calculate the value of x at every value
             x(j)=j*h;
         end
-        figure
-        plot(x,u,x,U)
+        figure %create a figure
+        plot(x,u,x,U) %plot the exact value and the calculated value
         legend('u','U')
-        e=zeros(1,N);
-        e(N)=U(N)-u(N);
-        for j=1:N-1
-            e(N-j)=-e(N+1-j)/a(N-j);
+        e=zeros(1,N); % define a zero matrix to be filled in later
+        e(N)=U(N)-u(N); % calculate the error at the Nth term
+        for j=1:N-1 % calculate the increasing error with every itteration
+            e(N-j)=-c(N-j)*e(N+1-j)/a(N-j); 
         end
-        ebar=0;
-        for j=1:N
+        for j=1:N  %get the absolute value of the vectore elements
             e(j)=abs(e(j));
         end
-        E(s,q+1)=max(e);
-    end
-    for q=1:Q
+        E(s,q+1)=max(e); %get the maximum value of the error vector and store it 
+    end %end the loop for N
+    for q=1:Q  %get the logarithmic difference between errors with increasing N to get convergence
         logE(s,q)=(log(E(s,q)/E(s,q+1))/log(2));
     end
-end
+end %end for k
 
+%plot the error vs N
 N=zeros(1,Q);
 for q=1:Q
     N(q)=10*2^q;
@@ -102,7 +102,7 @@ for s=1:S
         e=zeros(1,N);
         e(N)=U(N-1)-u(N-1);
         for j=1:N-1
-            e(N-j)=-e(N+1-j)/a(N-j);
+            e(N-j)=-c(N-j)*e(N+1-j)/a(N-j);
         end
         ebar=0;
         for j=1:N
