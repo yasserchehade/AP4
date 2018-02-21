@@ -1,6 +1,7 @@
 %% part 1
 %
-close, clear, clc
+close all
+clear, clc
 Q=10;                       %set limit for nodes
 S=2;                        %set limits for k
 E=zeros(S,Q+1);             % create a zero matrix to fill in the errors at each N and k 
@@ -20,17 +21,17 @@ for s=1:S                   % we start by defining a variable s that runs the co
         g=(A*h^2)*ones(1,N);%create the f values in a row vector of dimentions N
         g(1)=A*h^2-U0;      %modify the first term of g to A*h^2-U0
          for j=2:N          %solve the system of equation using the solution to the tridiagonal linear algorithm
-            a(j)=a(j)-(b(j)/a(j-1))*c(j-1);
-            g(j)=g(j)-(g(j-1)*b(j)/(a(j-1)));
+            a(j)=a(j)-(b(j)*c(j-1))/a(j-1);
+            g(j)=g(j)-(g(j-1)*b(j))/(a(j-1));
         end
         u=zeros(1,N);       % define a zero matrix to be filled in later
         u(N)=g(N)/a(N);     % solve the Nth  term of u
         for ii=1:(N-1)      %create an algorithm that solves the system from the bottom to the top and placing each term in the ii-th cell
-          u(N-ii)=(g(N-ii)-u(N+1-ii))/a(N-ii);
+          u(N-ii)=(g(N-ii)-c(N-ii)*u(N+1-ii))/a(N-ii);
         end
         U=zeros(1,N);       % define a zero matrix to be filled in later
         for j=1:N           %calculate the exact value of the function at every node
-            U(j)=((((sinh(k*(L-j*h))+sinh(k*j*h))/sinh(k*L))-1)*A/(k^2))+U0*(sinh(k*(L-j*h))/sinh(k*L));
+            U(j)=(((sinh(k*(L-j*h))+sinh(k*j*h))/sinh(k*L))-1)*(A/k^2)+U0*(sinh(k*(L-j*h))/sinh(k*L));
         end
         for j=1:N           %calculate the value of x at every value
             x(j)=j*h;
@@ -49,7 +50,7 @@ for s=1:S                   % we start by defining a variable s that runs the co
         E(s,q+1)=max(e);    %get the maximum value of the error vector and store it 
     end                     %end the loop for N
     for q=1:Q               %get the logarithmic difference between errors with increasing N to get convergence
-        logE(s,q)=log(E(s,q)/E(s,q+1))/log(2);
+        logE(s,q)=(log(E(s,q)/E(s,q+1))/log(2));
     end
 end                         %end for k
 
@@ -88,7 +89,7 @@ for s=1:S               % we start by defining a variable s that runs the code '
         u=zeros(1,N);   % define a zero matrix to be filled in later
         u(N)=g(N)/a(N); % solve the Nth  term of u
         for ii=1:(N-1)  %create an algorithm that solves the system from the bottom to the top and placing each term in the ii-th cell
-          u(N-ii)=(g(N-ii)-u(N+1-ii))/a(N-ii);
+          u(N-ii)=(g(N-ii)-c(N-ii)*u(N+1-ii))/a(N-ii);
         end
         u=u(1,2:N);     %remove u(0) to match the structure of true U
         U=zeros(1,N-1); % define a zero matrix to be filled in later
@@ -106,7 +107,6 @@ for s=1:S               % we start by defining a variable s that runs the code '
         for j=1:N-2     % calculate the increasing error with every itteration
             e(N-1-j)=-c(N-1-j)*e(N-j)/a(N-1-j);
         end
-        ebar=0;
         for j=1:N-1     %get the absolute value of the vectore elements
             e(j)=abs(e(j));
         end
